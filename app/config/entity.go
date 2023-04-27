@@ -30,29 +30,4 @@ type Conf struct {
 		Pass string `env:"DB_PASSWORD_PROD"`
 		Port string `env:"DB_PORT_PROD"`
 	}
-	Firebase_staging struct {
-		Type                        string `env:"FIREBASE_TYPE"`
-		Project_id                  string `env:"FIREBASE_PROJECT_ID"`
-		Private_key_id              string `env:"FIREBASE_PRIVATE_KEY_ID"`
-		Private_key                 string `env:"FIREBASE_PRIVATE_KEY"`
-		Client_email                string `env:"FIREBASE_CLIENT_EMAIL"`
-		Client_id                   string `env:"FIREBASE_CLIENT_ID"`
-		Auth_uri                    string `env:"FIREBASE_AUTH_URL"`
-		Token_uri                   string `env:"FIREBASE_TOKEN_URL"`
-		Auth_provider_x509_cert_url string `env:"FIREBASE_AUTH_PROVIDER_X509_CERT_URL"`
-		Client_x509_cert_url        string `env:"FIREBASE_CLIENT_X509_CERT_URL"`
-	}
-
-	Firebase_prod struct {
-		Type                        string `env:"FIREBASE_TYPE"`
-		Project_id                  string `env:"FIREBASE_PROJECT_ID"`
-		Private_key_id              string `env:"FIREBASE_PRIVATE_KEY_ID"`
-		Private_key                 string `env:"FIREBASE_PRIVATE_KEY"`
-		Client_email                string `env:"FIREBASE_CLIENT_EMAIL"`
-		Client_id                   string `env:"FIREBASE_CLIENT_ID"`
-		Auth_uri                    string `env:"FIREBASE_AUTH_URL"`
-		Token_uri                   string `env:"FIREBASE_TOKEN_URL"`
-		Auth_provider_x509_cert_url string `env:"FIREBASE_AUTH_PROVIDER_X509_CERT_URL"`
-		Client_x509_cert_url        string `env:"FIREBASE_CLIENT_X509_CERT_URL"`
-	}
 }

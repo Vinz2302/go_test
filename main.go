@@ -11,11 +11,6 @@ import (
 
 func main() {
 
-	/* err := godotenv.Load()
-	if err != nil {
-		fmt.Println("Error loading .env file")
-	} */
-
 	conf := driver.Conf
 	if driver.ErrConf != nil {
 		log.Fatal(driver.ErrConf)
@@ -28,16 +23,9 @@ func main() {
 	routes.Booking(router, *driver.BookingHandler)
 	routes.Driver(router, *driver.DriverHandler)
 	routes.Report(router, *driver.ReportHandler)
-	//router.RedirectTrailingSlash = false
-	//errors.Init(router)
 
 	port := &conf.App.Port
 
 	router.Run(":" + *port)
 
-	//models.ConnectDatabase()
-
-	//router.GET("/customers", controllers.GetCustomer)
-
-	//router.Run("localhost:8080")
 }
