@@ -1,1 +1,1 @@
-drop table driver_incentive;
+alter table bookings drop column test;
