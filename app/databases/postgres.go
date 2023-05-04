@@ -29,5 +29,14 @@ func Connect(conf *config.Conf) (*gorm.DB, error) {
 	} else {
 		log.Println("database connected")
 	}
+
+	dbConn, err := db.DB()
+	if err != nil {
+		log.Println("database not connected")
+	}
+	//defer dbConn.Close()
+	dbConn.SetMaxIdleConns(10)
+	dbConn.SetMaxOpenConns(100)
+
 	return db, err
 }

@@ -51,7 +51,7 @@ func (r *repository) FindBookingActivity(year int, month int) ([]model.ReportCar
 	)
 
 	err := r.db.Model(&booking).
-		Select("cars.id as car_id, cars.car_name, sum(date_part('day', age(bookings.end_time, bookings.start_time))) as total_days_booking, count(bookings.cars_id) as total_booking_count").
+		Select("cars.id as car_id, cars.car_name, sum(date_part('day', age(bookings.end_time, bookings.start_time)) + 1) as total_days_booking, count(bookings.cars_id) as total_booking_count").
 		Joins("JOIN cars ON cars.id = bookings.cars_id").
 		Where("extract(year from bookings.end_time) = ? AND extract(month from bookings.end_time) = ? AND bookings.finished = true", year, month).
 		Group("bookings.cars_id, cars.id").

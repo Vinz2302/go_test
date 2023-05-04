@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	model "rest-api/modules/v1/utilities/report/models"
 	repo "rest-api/modules/v1/utilities/report/repository"
 )
@@ -24,6 +25,7 @@ func (s *reportService) FindMonthlyCompanyIncome(year int, month int) ([]model.R
 	if errReport != nil {
 		return nil, errReport
 	}
+	fmt.Println("report 2 = ", *&report)
 
 	/* totalDriverExpense := uint(report.TotalDriverCost + report.TotalDriverIncentive)
 	report.TotalDriverExpense = &totalDriverExpense
@@ -35,6 +37,7 @@ func (s *reportService) FindMonthlyCompanyIncome(year int, month int) ([]model.R
 	report.TotalNettIncome = &totalNettIncome */
 
 	for i := range report {
+		fmt.Println(*report[i].Discount)
 		totalDriverExpense := *report[i].TotalDriverCost + *report[i].TotalDriverIncentive
 		report[i].TotalDriverExpense = &totalDriverExpense
 

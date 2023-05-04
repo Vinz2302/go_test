@@ -51,11 +51,10 @@ func (r *repository) FindAll(limit int, skip int) ([]model.Booking, *int64, erro
 		return nil, nil, err
 	}
 
-	if err := r.db.Preload("Customer").Preload("Car").Preload("Driver").Preload("Booktype").Offset(skip).Limit(limit).Order(" id asc ").Find(&booking).Error; err != nil {
+	if err := tx.Preload("Customer").Preload("Car").Preload("Driver").Preload("Booktype").Offset(skip).Limit(limit).Order(" id asc ").Find(&booking).Error; err != nil {
+		tx.Rollback()
 		return nil, nil, err
 	}
-
-	//fmt.Println(booking)
 
 	return booking, &count, tx.Commit().Error
 }
@@ -72,7 +71,7 @@ func (r *repository) FindByID(ID int) (model.Booking, error) {
 func (r *repository) FindByDriverID(driversID int) ([]model.Booking, error) {
 	var booking []model.Booking
 
-	err := r.db.Model(&model.Booking{}).Where("drivers_id = ?", driversID).Scan(&booking).Error
+	err := r.db.Model(&model.Booking{}).Where("drivers_id = ? AND finished = false", driversID).Scan(&booking).Error
 	/* if err := nil {
 		return nil, err
 	} */
@@ -87,10 +86,12 @@ func (r *repository) FindByDriverID(driversID int) ([]model.Booking, error) {
 func (r *repository) Create(booking model.Booking) (*model.Booking, error) {
 
 	var (
-		car             carModel.Car
-		newBooking      model.Booking
-		driverIncentive driver.DriverIncentive
+		car carModel.Car
+		//newBooking      model.Booking
+		//driverIncentive driver.DriverIncentive
 	)
+
+	fmt.Println("booking = ", booking)
 
 	tx := r.db.Begin()
 
@@ -124,7 +125,7 @@ func (r *repository) Create(booking model.Booking) (*model.Booking, error) {
 		return nil, err
 	}
 
-	if booking.BooktypeID == model.Driver {
+	/* if booking.BooktypeID == model.Driver {
 		// id desc / -id
 		if err := tx.Order("id DESC").Limit(1).Find(&newBooking).Error; err != nil {
 			tx.Rollback()
@@ -141,7 +142,7 @@ func (r *repository) Create(booking model.Booking) (*model.Booking, error) {
 			tx.Rollback()
 			return nil, err
 		}
-	}
+	} */
 
 	//err := r.db.Create(&booking).Error
 	return &booking, tx.Commit().Error
@@ -149,10 +150,10 @@ func (r *repository) Create(booking model.Booking) (*model.Booking, error) {
 
 func (r *repository) Update(booking model.Booking, oldBooking model.Booking) (*model.Booking, error) {
 	var (
-		prevCar         carModel.Car
-		car             carModel.Car
-		newBooking      model.Booking
-		driverIncentive driver.DriverIncentive
+		prevCar    carModel.Car
+		car        carModel.Car
+		newBooking model.Booking
+		//driverIncentive driver.DriverIncentive
 	)
 
 	tx := r.db.Begin()
@@ -216,7 +217,7 @@ func (r *repository) Update(booking model.Booking, oldBooking model.Booking) (*m
 
 	//fmt.Print("booking2 = ", newBooking)
 
-	if booking.BooktypeID == model.Driver {
+	/* if booking.BooktypeID == model.Driver {
 		totalDriverIncentive := helper.DriverIncentive(int(booking.TotalCost))
 		driverIncentive.Incentive = totalDriverIncentive
 		driverIncentive.BookingID = newBooking.ID
@@ -254,7 +255,7 @@ func (r *repository) Update(booking model.Booking, oldBooking model.Booking) (*m
 			tx.Rollback()
 			return nil, err
 		}
-	}
+	} */
 
 	/* if err := r.db.Save(&booking).Error; err != nil {
 		return nil, err
@@ -265,8 +266,8 @@ func (r *repository) Update(booking model.Booking, oldBooking model.Booking) (*m
 
 func (r *repository) Delete(booking model.Booking) (*model.Booking, error) {
 	var (
-		driverIncentive driver.DriverIncentive
-		car             carModel.Car
+		//driverIncentive driver.DriverIncentive
+		car carModel.Car
 	)
 
 	tx := r.db.Begin()
@@ -296,12 +297,12 @@ func (r *repository) Delete(booking model.Booking) (*model.Booking, error) {
 		}
 	}
 
-	if booking.BooktypeID == model.Driver {
+	/* if booking.BooktypeID == model.Driver {
 		if err := tx.Where("booking_id = ?", booking.ID).Delete(&driverIncentive).Error; err != nil {
 			tx.Rollback()
 			return nil, err
 		}
-	}
+	} */
 
 	if err := tx.Delete(&booking).Error; err != nil {
 		tx.Rollback()
@@ -314,7 +315,9 @@ func (r *repository) Delete(booking model.Booking) (*model.Booking, error) {
 
 func (r *repository) Finish(booking model.Booking) (*model.Booking, error) {
 	var (
-		car carModel.Car
+		car             carModel.Car
+		newBooking      model.Booking
+		driverIncentive driver.DriverIncentive
 	)
 
 	tx := r.db.Begin()
@@ -354,5 +357,24 @@ func (r *repository) Finish(booking model.Booking) (*model.Booking, error) {
 		return nil, err
 	}
 
-	return &booking, tx.Commit().Error
+	if booking.BooktypeID == model.Driver {
+		// id desc / -id
+		if err := tx.Order("id DESC").Limit(1).Find(&newBooking).Error; err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+
+		totalDriverIncentive := helper.DriverIncentive(int(booking.TotalCost))
+
+		driverIncentive.Incentive = totalDriverIncentive
+
+		driverIncentive.BookingID = newBooking.ID
+
+		if err := tx.Create(&driverIncentive).Error; err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+	}
+
+	return &newBooking, tx.Commit().Error
 }

@@ -10,3 +10,7 @@ type BookingRequest struct {
 	BooktypeID  BookType  `json:"booking_type_id" gorm:"type:book_type" binding:"required"`
 	DriversID   *uint     `json:"driver_id"`
 }
+
+type FinishRequest struct {
+	EndTime time.Time `json:"end_time"`
+}

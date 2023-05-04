@@ -43,7 +43,6 @@ func (s *driverService) FindByID(id int) (model.Driver, error) {
 func (s *driverService) Create(DriverRequest model.DriverRequest) (*model.Driver, error) {
 
 	Driver := model.Driver{
-		ID:          DriverRequest.ID,
 		DriverName:  DriverRequest.DriverName,
 		Nik:         DriverRequest.Nik,
 		PhoneNumber: DriverRequest.PhoneNumber,

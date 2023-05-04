@@ -22,7 +22,7 @@ type IBookingService interface {
 	Create(bookingRequest model.BookingRequest) (*model.Booking, error, int)
 	Update(id int, BookingRequest model.BookingRequest) (*model.Booking, error, int)
 	Delete(id int) (error, int)
-	Finish(id int, BookingRequest model.BookingRequest) (*model.Booking, error, int)
+	Finish(id int, FinishRequest model.FinishRequest) (*model.Booking, error, int)
 }
 
 type bookingService struct {
@@ -58,8 +58,8 @@ func (s *bookingService) Create(bookingRequest model.BookingRequest) (*model.Boo
 		totalDriverCost *uint
 		discount        *float32
 		err             error
-		currentRange    []time.Time
-		allRange        []time.Time
+		//currentRange    []time.Time
+		//allRange        []time.Time
 	)
 
 	now := time.Now().UTC()
@@ -69,14 +69,14 @@ func (s *bookingService) Create(bookingRequest model.BookingRequest) (*model.Boo
 	//startTime := bookingRequest.StartTime
 	endTime := bookingRequest.EndTime.AddDate(0, 0, 1)
 
-	for d := startTime; d.Before(endTime); d = d.AddDate(0, 0, 1) {
+	/* for d := startTime; d.Before(endTime); d = d.AddDate(0, 0, 1) {
 		currentRange = append(currentRange, d)
-	}
+	} */
 
 	days := helper.Days(endTime, startTime)
 	//days := uint(endTime.Sub(startTime).Hours() / 24)
 
-	fmt.Print("days = ", days)
+	//fmt.Print("days = ", days)
 
 	/* customerData, errCustomer := s.customerService.FindByID(int(bookingRequest.CustomersID))
 	if errCustomer != nil {
@@ -86,9 +86,9 @@ func (s *bookingService) Create(bookingRequest model.BookingRequest) (*model.Boo
 		return nil, errors.New("Customer"), 404
 	} */
 
-	customerData, errCustomer := findCustomer(s.customerService, &bookingRequest)
+	customerData, errCustomer, statusCode := findCustomer(s.customerService, &bookingRequest)
 	if errCustomer != nil {
-		return nil, errCustomer, 500
+		return nil, errCustomer, statusCode
 	}
 
 	/* carData, errCar := s.carService.FindByID(int(bookingRequest.CarsID))
@@ -101,10 +101,11 @@ func (s *bookingService) Create(bookingRequest model.BookingRequest) (*model.Boo
 	if carData.Stock == 0 {
 		return nil, errors.New("Car out of stock"), 400
 	} */
-	carData, errCar := findCar(s.carService, &bookingRequest)
+	carData, errCar, statusCode := findCar(s.carService, &bookingRequest)
 	if errCar != nil {
-		return nil, err, 500
+		return nil, errCar, statusCode
 	}
+	fmt.Println("car data", carData)
 
 	carDailyCost := carData.RentDailyPrice
 	totalCost := helper.TotalCost(days, carDailyCost)
@@ -121,13 +122,15 @@ func (s *bookingService) Create(bookingRequest model.BookingRequest) (*model.Boo
 	}
 
 	allBooking, errGetAll := s.repository.FindByDriverID(int(*bookingRequest.DriversID))
+	fmt.Println("all booking ID = ", allBooking)
 	if errGetAll != nil {
-		return nil, err, 500
+		return nil, errGetAll, 500
+	}
+	if allBooking != nil {
+		return nil, errors.New("Drivers not available"), 400
 	}
 
-	fmt.Println("all booking ID = ", allBooking)
-
-	for _, albooking := range allBooking {
+	/* for _, albooking := range allBooking {
 
 		allStartDate := albooking.StartTime
 		allEndDate := albooking.EndTime.AddDate(0, 0, 1)
@@ -136,9 +139,9 @@ func (s *bookingService) Create(bookingRequest model.BookingRequest) (*model.Boo
 		}
 		fmt.Println("all start = ", allStartDate)
 		fmt.Println("all end = ", allEndDate)
-	}
+	} */
 
-	fmt.Println("all range = ", allRange)
+	/* fmt.Println("all range = ", allRange)
 	for _, r := range currentRange {
 		found := false
 		for _, ar := range allRange {
@@ -151,7 +154,7 @@ func (s *bookingService) Create(bookingRequest model.BookingRequest) (*model.Boo
 		if !found {
 			fmt.Println("no overlap")
 		}
-	}
+	} */
 
 	if bookingRequest.BooktypeID >= model.NonDriver || bookingRequest.BooktypeID <= model.Driver {
 		if bookingRequest.BooktypeID == model.Driver {
@@ -199,6 +202,7 @@ func (s *bookingService) Create(bookingRequest model.BookingRequest) (*model.Boo
 		TotalDriverCost: totalDriverCost,
 		Discount:        discount,
 	}
+
 	newBooking, err := s.repository.Create(Booking)
 	if err != nil {
 		return nil, err, 500
@@ -213,11 +217,11 @@ func (s *bookingService) Update(id int, BookingRequest model.BookingRequest) (*m
 		totalDriverCost *uint
 		oldBooking      model.Booking
 		err             error
-		currentRange    []time.Time
-		allRange        []time.Time
-		bookedRange     []time.Time
-		newDriver       uint
-		oldDriver       uint
+		//currentRange    []time.Time
+		//allRange        []time.Time
+		//bookedRange     []time.Time
+		//newDriver uint
+		//oldDriver uint
 	)
 
 	booking, errGet := s.repository.FindByID(id)
@@ -242,10 +246,10 @@ func (s *bookingService) Update(id int, BookingRequest model.BookingRequest) (*m
 	//days := uint(endTime.Sub(startTime).Hours() / 24)
 	days := helper.Days(endTime, startTime)
 
-	for d := startTime; d.Before(endTime); d = d.AddDate(0, 0, 1) {
+	/* for d := startTime; d.Before(endTime); d = d.AddDate(0, 0, 1) {
 		currentRange = append(currentRange, d)
 		fmt.Println("day", d)
-	}
+	} */
 
 	/* customerData, errCustomer := s.customerService.FindByID(int(BookingRequest.CustomersID))
 	if errCustomer != nil {
@@ -254,14 +258,14 @@ func (s *bookingService) Update(id int, BookingRequest model.BookingRequest) (*m
 	if customerData.ID == 0 {
 		return nil, errors.New("Customer"), 404
 	} */
-	customerData, errCustomer := findCustomer(s.customerService, &BookingRequest)
+	customerData, errCustomer, statusCode := findCustomer(s.customerService, &BookingRequest)
 	if errCustomer != nil {
-		return nil, err, 500
+		return nil, errCustomer, statusCode
 	}
 
-	carData, errCar := findCar(s.carService, &BookingRequest)
+	carData, errCar, statusCode := findCar(s.carService, &BookingRequest)
 	if errCar != nil {
-		return nil, err, 500
+		return nil, errCar, statusCode
 	}
 
 	carDailyCost := carData.RentDailyPrice
@@ -277,11 +281,11 @@ func (s *bookingService) Update(id int, BookingRequest model.BookingRequest) (*m
 		discount = &discountTemp
 	}
 
-	bookedStart := startTime
+	/* bookedStart := startTime
 	bookedEnd := booking.EndTime.AddDate(0, 0, 1)
 	for d := bookedStart; d.Before(bookedEnd); d = d.AddDate(0, 0, 1) {
 		bookedRange = append(bookedRange, d)
-	}
+	} */
 	//fmt.Println("current range", currentRange)
 	//fmt.Println("booked range = ", bookedRange)
 
@@ -291,12 +295,12 @@ func (s *bookingService) Update(id int, BookingRequest model.BookingRequest) (*m
 			booking.DriversID = BookingRequest.DriversID
 		}
 
-		oldDriver = *booking.DriversID
-		newDriver = *BookingRequest.DriversID
-		fmt.Println("oldDriver", oldDriver)
-		fmt.Println("newDriver", newDriver)
+		//oldDriver = *booking.DriversID
+		//newDriver = *BookingRequest.DriversID
+		//fmt.Println("oldDriver", oldDriver)
+		//fmt.Println("newDriver", newDriver)
 
-		if oldDriver != newDriver {
+		/* if oldDriver != newDriver {
 			fmt.Println("test !=")
 			allBooking, errGetAll := s.repository.FindByDriverID(int(*BookingRequest.DriversID))
 			if errGetAll != nil {
@@ -322,9 +326,9 @@ func (s *bookingService) Update(id int, BookingRequest model.BookingRequest) (*m
 					}
 				}
 			}
-		}
+		} */
 
-		if oldDriver == newDriver {
+		/* if oldDriver == newDriver {
 			fmt.Println("test ==")
 			for _, cr := range currentRange {
 				found := false
@@ -368,7 +372,7 @@ func (s *bookingService) Update(id int, BookingRequest model.BookingRequest) (*m
 					fmt.Println("no overlap 2")
 				}
 			}
-		}
+		} */
 
 		totalDriverCost, err = calculateDriverCost(s.driverService, &BookingRequest, days)
 		if err != nil {
@@ -426,7 +430,7 @@ func (s *bookingService) Update(id int, BookingRequest model.BookingRequest) (*m
 	}
 	//fmt.Print("newBooking = ", newBooking)
 
-	return newBooking, nil, 200
+	return newBooking, err, 200
 }
 
 func (s *bookingService) Delete(id int) (error, int) {
@@ -435,8 +439,11 @@ func (s *bookingService) Delete(id int) (error, int) {
 	if errGet != nil {
 		return errGet, 500
 	}
+	if Booking.ID == 0 {
+		return errors.New("ID"), 404
+	}
 	if Booking.Finished == true {
-		return nil, 403
+		return errors.New("Booking already finished"), 400
 	}
 
 	_, err := s.repository.Delete(Booking)
@@ -446,7 +453,7 @@ func (s *bookingService) Delete(id int) (error, int) {
 	return nil, 200
 }
 
-func (s *bookingService) Finish(id int, BookingRequest model.BookingRequest) (*model.Booking, error, int) {
+func (s *bookingService) Finish(id int, FinishRequest model.FinishRequest) (*model.Booking, error, int) {
 	var (
 		discount        *float32
 		totalDriverCost *uint
@@ -456,7 +463,7 @@ func (s *bookingService) Finish(id int, BookingRequest model.BookingRequest) (*m
 	//now := time.Now().UTC()
 	//today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
 
-	time := BookingRequest.EndTime
+	time := FinishRequest.EndTime
 
 	fmt.Println("time = ", time)
 
@@ -496,6 +503,9 @@ func (s *bookingService) Finish(id int, BookingRequest model.BookingRequest) (*m
 	}
 
 	startTime := booking.StartTime
+	if startTime.After(FinishRequest.EndTime) {
+		return nil, errors.New("Invalid end date"), 400
+	}
 	days := helper.Days(endTime, startTime)
 	carDailyCost := carData.RentDailyPrice
 	totalCost := helper.TotalCost(days, carDailyCost)
@@ -535,7 +545,7 @@ func (s *bookingService) Finish(id int, BookingRequest model.BookingRequest) (*m
 	if err != nil {
 		return nil, err, 500
 	}
-	return newBooking, err, 200
+	return newBooking, nil, 200
 }
 
 func calculateDriverCost(driverService driverService.IDriverService, bookingRequest *model.BookingRequest, days uint) (*uint, error) {
@@ -549,41 +559,42 @@ func calculateDriverCost(driverService driverService.IDriverService, bookingRequ
 	dailyCostDriver := driverData.DailyCost
 	totalDriverCostTemp := helper.TotalDriverCost(days, dailyCostDriver)
 	totalDriverCost := &totalDriverCostTemp
-	return totalDriverCost, nil
+	return totalDriverCost, errDriver
 }
 
-func findDriver(driverService driverService.IDriverService, bookingRequest *model.BookingRequest) (*modelDriver.Driver, error) {
+func findDriver(driverService driverService.IDriverService, bookingRequest *model.BookingRequest) (*modelDriver.Driver, error, int) {
 	driverData, errDriver := driverService.FindByID(int(*bookingRequest.DriversID))
 	if errDriver != nil {
-		return nil, errDriver
+		return nil, errDriver, 500
 	}
 	if driverData.ID == 0 {
-		return nil, errors.New("Driver not found")
+		return nil, errors.New("Driver not found"), 404
 	}
-	return &driverData, nil
+	return &driverData, nil, 200
 }
 
-func findCustomer(customerService customerService.ICustomerService, bookingRequest *model.BookingRequest) (*modelCustomer.Customer, error) {
+func findCustomer(customerService customerService.ICustomerService, bookingRequest *model.BookingRequest) (*modelCustomer.Customer, error, int) {
 	customerData, errCustomer := customerService.FindByID(int(bookingRequest.CustomersID))
 	if errCustomer != nil {
-		return nil, errCustomer
+		return nil, errCustomer, 500
 	}
 	if customerData.ID == 0 {
-		return nil, errors.New("ID not found")
+		return nil, errors.New("ID not found"), 404
 	}
-	return &customerData, nil
+	return &customerData, nil, 200
 }
 
-func findCar(carService carService.ICarService, bookingRequest *model.BookingRequest) (*modelCar.Car, error) {
+func findCar(carService carService.ICarService, bookingRequest *model.BookingRequest) (*modelCar.Car, error, int) {
 	carData, errCar := carService.FindByID(int(bookingRequest.CarsID))
+	fmt.Println("car =", carData)
 	if errCar != nil {
-		return nil, errCar
+		return nil, errCar, 500
 	}
 	if carData.ID == 0 {
-		return nil, errors.New("Car")
+		return nil, errors.New("Car ID not found"), 404
 	}
-	if carData.Stock == 0 {
-		return nil, errors.New("Car out of stock")
+	if uint(carData.Stock) == 0 {
+		return nil, errors.New("Car out of stock"), 400
 	}
-	return &carData, nil
+	return &carData, nil, 200
 }

@@ -130,6 +130,7 @@ func (h *BookingHandler) Create(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, res.BadRequest("Booktype id not exist"))
 		return
 	}
+	fmt.Println("request = ", BookingRequest)
 
 	BookingResult, err, statusCode := h.bookingService.Create(BookingRequest)
 	if err != nil {
@@ -145,7 +146,7 @@ func (h *BookingHandler) Create(c *gin.Context) {
 		return
 	}
 
-	//fmt.Print("bookingresult", BookingResult)
+	fmt.Print("bookingresult", BookingResult)
 
 	BookingResponse := responseBooking(*BookingResult)
 
@@ -195,11 +196,12 @@ func (h *BookingHandler) Update(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, res.BadRequest("Booktype id not exist"))
 		return
 	}
+	fmt.Println("request = ", BookingRequest)
 
 	BookingResult, err, statusCode := h.bookingService.Update(id, BookingRequest)
 	if err != nil {
 		if statusCode == 404 {
-			c.JSON(http.StatusNotFound, res.NotFound("ID"))
+			c.JSON(http.StatusNotFound, res.NotFound("Customer ID"))
 			return
 		}
 		if statusCode == 400 {
@@ -225,24 +227,29 @@ func (h *BookingHandler) Delete(c *gin.Context) {
 
 	err, statusCode := h.bookingService.Delete(id)
 	if err != nil {
+		if statusCode == 404 {
+			c.JSON(http.StatusNotFound, res.NotFound(err.Error()))
+			return
+		}
+		if statusCode == 400 {
+			c.JSON(http.StatusBadRequest, res.BadRequest(err.Error()))
+			return
+		}
 		c.JSON(http.StatusInternalServerError, res.ServerError(err.Error()))
 		return
 	}
-	if statusCode == 404 {
-		c.JSON(http.StatusNotFound, res.NotFound("ID"))
-		return
-	}
 
-	c.JSON(http.StatusOK, res.StatusOK("Customer deleted Success"))
+	c.JSON(http.StatusOK, res.StatusOK("Booking deleted Success"))
 }
 
 func (h *BookingHandler) Finish(c *gin.Context) {
-	var BookingRequest model.BookingRequest
+	//var BookingRequest model.BookingRequest
+	var FinishRequest model.FinishRequest
 
 	idString := c.Param("id")
 	id, _ := strconv.Atoi(idString)
 
-	err := c.ShouldBindJSON(&BookingRequest)
+	err := c.ShouldBindJSON(&FinishRequest)
 	if err != nil {
 		var ve validator.ValidationErrors
 		if errors.As(err, &ve) {
@@ -254,7 +261,7 @@ func (h *BookingHandler) Finish(c *gin.Context) {
 		return
 	}
 
-	BookingResult, err, statusCode := h.bookingService.Finish(id, BookingRequest)
+	BookingResult, err, statusCode := h.bookingService.Finish(id, FinishRequest)
 	if err != nil {
 		if statusCode == 404 {
 			c.JSON(http.StatusNotFound, res.NotFound("ID"))
@@ -262,6 +269,11 @@ func (h *BookingHandler) Finish(c *gin.Context) {
 		}
 		if statusCode == 400 {
 			c.JSON(http.StatusBadRequest, res.BadRequest(err.Error()))
+			return
+		}
+		if statusCode == 403 {
+			c.JSON(http.StatusForbidden, res.StatusForbidden(err.Error()))
+			return
 		}
 		c.JSON(http.StatusInternalServerError, res.ServerError(err.Error()))
 	}
@@ -288,8 +300,8 @@ func responseBooking(b model.Booking) model.BookingResponse {
 		ID:              b.ID,
 		CustomersID:     b.CustomersID,
 		CarsID:          b.CarsID,
-		StartTime:       b.StartTime.Format("2006-01-02T15:04Z"),
-		EndTime:         b.EndTime.Format("2006-01-02T15:04Z"),
+		StartTime:       b.StartTime,
+		EndTime:         b.EndTime,
 		DriversID:       b.DriversID,
 		TotalCost:       b.TotalCost,
 		Finished:        b.Finished,
