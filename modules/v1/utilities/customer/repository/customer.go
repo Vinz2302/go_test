@@ -12,6 +12,7 @@ type ICustomerRepository interface {
 	Create(customer model.Customer) (model.Customer, error)
 	Update(customer model.Customer) (model.Customer, error)
 	Delete(customer model.Customer) (model.Customer, error)
+	FindMembership(ID int) (model.Membership, error)
 }
 
 type repository struct {
@@ -86,4 +87,10 @@ func (r *repository) Update(customer model.Customer) (model.Customer, error) {
 func (r *repository) Delete(customer model.Customer) (model.Customer, error) {
 	err := r.db.Delete(&customer).Error
 	return customer, err
+}
+
+func (r *repository) FindMembership(ID int) (model.Membership, error) {
+	var membership model.Membership
+	err := r.db.Find(&membership, ID).Error
+	return membership, err
 }

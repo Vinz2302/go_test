@@ -8,6 +8,6 @@ import (
 
 var (
 	BookingRepository = repo.NewBookingRepository(DB, DriverRepository)
-	BookingService    = service.NewBookingService(BookingRepository, DriverService, CarService, UserService, CustomerService)
+	BookingService    = service.NewBookingService(BookingRepository, DriverService, CarService, CustomerService, CustomerRepository)
 	BookingHandler    = handler.NewBookingHandler(BookingService)
 )

@@ -1,9 +1,5 @@
 package models
 
-import (
-	membership "rest-api/modules/v1/utilities/user/model"
-)
-
 /* type Customer struct {
 	ID           uint       //`json:"id" gorm:"primaryKey"`
 	CustomerName string     `json:"customer_name" gorm:"type:varchar(256)"`
@@ -23,7 +19,7 @@ type Customer struct {
 	PhoneNumber  uint   `json:"phone_number" gorm:"type:bigint"`
 	MembershipID uint   `json:"membership_id" gorm:"type:int"`
 
-	Membership membership.Membership `gorm:"foreignKey:MembershipID"`
+	Membership Membership `gorm:"foreignKey:MembershipID"`
 
 	//Membership membership `gorm:"foreignKey:MembershipID"`
 }
@@ -34,3 +30,9 @@ type Customer struct {
 	DailyDiscount float32 `json:daily_discount`
 }
 */
+
+type Membership struct {
+	ID            uint `json:"id" gorm:"primaryKey"`
+	Name          string
+	DailyDiscount float32 `json:"daily_discount"`
+}

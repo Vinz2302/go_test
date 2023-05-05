@@ -1,11 +1,11 @@
 package driver
 
 import (
-	repo "rest-api/modules/v1/utilities/user/repository"
-	service "rest-api/modules/v1/utilities/user/service"
+	"rest-api/modules/v1/utilities/user/repository"
+	helperDatabases "rest-api/pkg/helpers/databases"
 )
 
 var (
-	UserRepository = repo.NewUserRepository(DB)
-	UserService    = service.NewMembershipService(UserRepository)
+	HelperDatabase = helperDatabases.InitHelperDatabase(DB)
+	UserRepository = repository.InitUserRepository(DB, HelperDatabase, &Conf)
 )

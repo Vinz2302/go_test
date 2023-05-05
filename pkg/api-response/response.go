@@ -78,7 +78,7 @@ func ServerError(errorMessages interface{}) Meta {
 	return result
 }
 
-/* func UnAuthorized(errorMessage string) Meta {
+func UnAuthorized(errorMessage string) Meta {
 	var result Meta
 	switch errorMessage {
 	case "Token is expired":
@@ -102,7 +102,7 @@ func ServerError(errorMessages interface{}) Meta {
 	}
 	return result
 
-} */
+}
 
 // @NOTED: empty object is used when data doesnt want to be null on json
 type EmptyObj struct{}

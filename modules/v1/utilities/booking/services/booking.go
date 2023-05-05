@@ -8,10 +8,10 @@ import (
 	modelCar "rest-api/modules/v1/utilities/car/models"
 	carService "rest-api/modules/v1/utilities/car/services"
 	modelCustomer "rest-api/modules/v1/utilities/customer/models"
+	customerRepo "rest-api/modules/v1/utilities/customer/repository"
 	customerService "rest-api/modules/v1/utilities/customer/services"
 	modelDriver "rest-api/modules/v1/utilities/drivers/models"
 	driverService "rest-api/modules/v1/utilities/drivers/services"
-	userService "rest-api/modules/v1/utilities/user/service"
 	helper "rest-api/pkg/helpers"
 	"time"
 )
@@ -30,11 +30,11 @@ type bookingService struct {
 	driverService   driverService.IDriverService
 	carService      carService.ICarService
 	customerService customerService.ICustomerService
-	userService     userService.IUserService
+	customerRepo    customerRepo.ICustomerRepository
 }
 
-func NewBookingService(repository repo.IBookingRepository, driverService driverService.IDriverService, carService carService.ICarService, userService userService.IUserService, customerService customerService.ICustomerService) *bookingService {
-	return &bookingService{repository, driverService, carService, customerService, userService}
+func NewBookingService(repository repo.IBookingRepository, driverService driverService.IDriverService, carService carService.ICarService, customerService customerService.ICustomerService, customerRepo customerRepo.ICustomerRepository) *bookingService {
+	return &bookingService{repository, driverService, carService, customerService, customerRepo}
 }
 
 func (s *bookingService) FindAll(page int, limit int) ([]model.Booking, *int64, error) {
@@ -110,7 +110,7 @@ func (s *bookingService) Create(bookingRequest model.BookingRequest) (*model.Boo
 	carDailyCost := carData.RentDailyPrice
 	totalCost := helper.TotalCost(days, carDailyCost)
 
-	membershipData, errMembership := s.userService.FindByID(int(customerData.MembershipID))
+	membershipData, errMembership := s.customerRepo.FindMembership(int(customerData.MembershipID))
 	if errMembership != nil {
 		return nil, errMembership, 500
 	}
@@ -271,7 +271,7 @@ func (s *bookingService) Update(id int, BookingRequest model.BookingRequest) (*m
 	carDailyCost := carData.RentDailyPrice
 	totalCost := helper.TotalCost(days, carDailyCost)
 
-	membershipData, errMembership := s.userService.FindByID(int(customerData.MembershipID))
+	membershipData, errMembership := s.customerRepo.FindMembership(int(customerData.MembershipID))
 	if errMembership != nil {
 		return nil, errMembership, 500
 	}
@@ -510,7 +510,7 @@ func (s *bookingService) Finish(id int, FinishRequest model.FinishRequest) (*mod
 	carDailyCost := carData.RentDailyPrice
 	totalCost := helper.TotalCost(days, carDailyCost)
 
-	memberhipData, errMembership := s.userService.FindByID(int(customerData.MembershipID))
+	memberhipData, errMembership := s.customerRepo.FindMembership(int(customerData.MembershipID))
 	if errMembership != nil {
 		return nil, errMembership, 500
 	}
