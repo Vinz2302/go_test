@@ -1,8 +1,6 @@
 package model
 
 import (
-	"database/sql/driver"
-	"fmt"
 	role "rest-api/modules/v1/utilities/role/model"
 	"time"
 
@@ -11,12 +9,12 @@ import (
 
 type UserStatusType string
 
-const (
+/* const (
 	Active UserStatusType = "active"
 	Resign UserStatusType = "resign"
-)
+) */
 
-type Users struct {
+/* type Users struct {
 	ID           *uint   `gorm:"primaryKey"`
 	AuthServerId *uint   `gorm:"unique; not null"`
 	Nip          *string `gorm:"unique; type:varchar(256); not null"`
@@ -28,9 +26,20 @@ type Users struct {
 	UpdatedAt    time.Time
 	DeletedAt    gorm.DeletedAt
 	Role         role.Roles `json:"role" gorm:"foreignKey:RoleId"`
+} */
+
+type Users struct {
+	ID        *uint   `gorm:"primaryKey"`
+	Name      *string `gorm:"unique; not null"`
+	Email     *string `gorm:"unique; type:varchar(256); not null"`
+	roleId    *uint
+	CreatedAt time.Time `gorm:"DEFAULT:current_timestamp"`
+	UpdateAt  time.Time
+	DeletedAt gorm.DeletedAt
+	Role      role.Roles `json:"role" gorm:"foreignKey:RoleId`
 }
 
-func (user *UserStatusType) Scan(value interface{}) error {
+/* func (user *UserStatusType) Scan(value interface{}) error {
 	switch v := value.(type) {
 	case []byte:
 		*user = UserStatusType(value.([]byte))
@@ -40,8 +49,8 @@ func (user *UserStatusType) Scan(value interface{}) error {
 		return fmt.Errorf("cannot sql.Scan() UserStatusType from: %#v", v)
 	}
 	return nil
-}
+} */
 
-func (user UserStatusType) Value() (driver.Value, error) {
+/* func (user UserStatusType) Value() (driver.Value, error) {
 	return string(user), nil
-}
+} */

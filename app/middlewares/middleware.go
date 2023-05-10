@@ -74,8 +74,8 @@ func AuthUser() gin.HandlerFunc {
 		c.Set("user", *userLogin)
 		c.Set("user_id", *userLogin.ID)
 		c.Set("user_name", *userLogin.Name)
-		c.Set("user_nip", *userLogin.Nip)
-		c.Set("user_role_id", *userLogin.RoleId)
+		//c.Set("user_nip", *userLogin.Nip)
+		//c.Set("user_role_id", *userLogin.RoleId)
 		c.Next()
 	}
 }
