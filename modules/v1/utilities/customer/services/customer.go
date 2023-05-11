@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	model "rest-api/modules/v1/utilities/customer/models"
 	repo "rest-api/modules/v1/utilities/customer/repository"
@@ -57,6 +58,7 @@ func (s *customerService) Create(CustomerRequest model.CustomerRequest) (*model.
 		PhoneNumber:  CustomerRequest.PhoneNumber,
 		MembershipID: CustomerRequest.MembershipID,
 	}
+	fmt.Println("check", Customer)
 	newCustomer, err := s.repository.Create(Customer)
 	return &newCustomer, err
 }

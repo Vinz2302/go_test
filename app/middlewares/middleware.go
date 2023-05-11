@@ -5,10 +5,10 @@ import (
 	"log"
 	"net/http"
 	"rest-api/app/config"
-	driver "rest-api/driver"
+
+	//driver "rest-api/driver"
 	res "rest-api/pkg/api-response"
 	jwt "rest-api/pkg/jwt"
-	"strconv"
 	"strings"
 	"time"
 
@@ -53,7 +53,7 @@ func AuthJwt() gin.HandlerFunc {
 	}
 }
 
-func AuthUser() gin.HandlerFunc {
+/* func AuthUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authUser := c.Request.Header.Get("Auth-User-Id")
 		userRepository := driver.UserRepository
@@ -74,13 +74,13 @@ func AuthUser() gin.HandlerFunc {
 		c.Set("user", *userLogin)
 		c.Set("user_id", *userLogin.ID)
 		c.Set("user_name", *userLogin.Name)
-		//c.Set("user_nip", *userLogin.Nip)
-		//c.Set("user_role_id", *userLogin.RoleId)
+		c.Set("user_nip", *userLogin.Nip)
+		c.Set("user_role_id", *userLogin.RoleId)
 		c.Next()
 	}
-}
+} */
 
-func CORSMiddleware() gin.HandlerFunc {
+/* func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
@@ -95,4 +95,4 @@ func CORSMiddleware() gin.HandlerFunc {
 
 		c.Next()
 	}
-}
+} */

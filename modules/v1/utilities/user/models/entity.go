@@ -1,13 +1,10 @@
 package model
 
 import (
-	role "rest-api/modules/v1/utilities/role/model"
-	"time"
-
-	"gorm.io/gorm"
+	role "rest-api/modules/v1/utilities/role/models"
 )
 
-type UserStatusType string
+//type UserStatusType string
 
 /* const (
 	Active UserStatusType = "active"
@@ -29,14 +26,15 @@ type UserStatusType string
 } */
 
 type Users struct {
-	ID        *uint   `gorm:"primaryKey"`
-	Name      *string `gorm:"unique; not null"`
-	Email     *string `gorm:"unique; type:varchar(256); not null"`
-	roleId    *uint
-	CreatedAt time.Time `gorm:"DEFAULT:current_timestamp"`
-	UpdateAt  time.Time
-	DeletedAt gorm.DeletedAt
-	Role      role.Roles `json:"role" gorm:"foreignKey:RoleId`
+	ID       uint   `gorm:"primaryKey"`
+	Name     string `gorm:"unique; not null"`
+	Email    string `gorm:"unique; type:varchar(256); not null"`
+	Password string `gorm:"type:varchar(256); not null"`
+	RoleId   uint
+	// CreatedAt time.Time `gorm:"DEFAULT:current_timestamp"`
+	// UpdateAt  time.Time
+	// DeletedAt gorm.DeletedAt
+	Role role.Roles `gorm:"foreignKey:RoleId"`
 }
 
 /* func (user *UserStatusType) Scan(value interface{}) error {

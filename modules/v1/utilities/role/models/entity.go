@@ -6,9 +6,9 @@ import (
 	"gorm.io/gorm"
 )
 
-type RoleType string
+//type RoleType string
 
-const (
+/* const (
 	Director          RoleType = "director"           // Director
 	TradeTeam         RoleType = "trade-team"         // Trade Team
 	NSM               RoleType = "nsm"                // National Sales Manager
@@ -18,29 +18,29 @@ const (
 	FIC               RoleType = "fic"                // Finance Internal Control
 	MarketingDirector RoleType = "marketing-director" // Marketing Director
 	MSD               RoleType = "msd"                // Marketing Service Department
-)
+) */
 
 type Roles struct {
-	ID        *uint          `json:"role_id" gorm:"primaryKey"`
-	Name      *string        `json:"role_name" gorm:"type:varchar(256); not null"`
-	Label     *string        `json:"role_label" gorm:"type:varchar(256); not null"`
-	ParentId  *uint          `json:"parent_id"`
-	CreatedAt time.Time      `gorm:"DEFAULT:current_timestamp" json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
-	DeletedAt gorm.DeletedAt `json:"deleted_at"`
+	ID   *uint   `json:"id" gorm:"primaryKey;type:integer"`
+	Name *string `json:"name" gorm:"type:varchar(256); not null"`
+	//Label     *string        `json:"role_label" gorm:"type:varchar(256); not null"`
+	//ParentId  *uint          `json:"parent_id"`
+	//CreatedAt time.Time      `gorm:"DEFAULT:current_timestamp" json:"created_at"`
+	//UpdatedAt time.Time      `json:"updated_at"`
+	//DeletedAt gorm.DeletedAt `json:"deleted_at"`
 }
 
-type ParentRoles struct {
+/* type ParentRoles struct {
 	ID        *uint      `json:"role_id" gorm:"primaryKey"`
 	Name      *string    `json:"role_name" gorm:"type:varchar(256); not null"`
 	Label     *string    `json:"role_label" gorm:"type:varchar(256); not null"`
 	CreatedAt *time.Time `gorm:"DEFAULT:current_timestamp" json:"created_at"`
 	UpdatedAt *time.Time `json:"updated_at"`
-}
+} */
 
-func (ParentRoles) TableName() string {
+/* func (ParentRoles) TableName() string {
 	return "roles"
-}
+} */
 
 type RolesRawQuerySelfJoinResult struct {
 	RoleId       *uint
@@ -53,11 +53,11 @@ type RolesRawQuerySelfJoinResult struct {
 	NameRoleHead *string
 }
 
-type RolesWithEpochEntity struct {
+/* type RolesWithEpochEntity struct {
 	RoleId    *uint   `json:"role_id"`
 	Name      *string `json:"name"`
 	Label     *string `json:"label"`
 	ParentId  *uint   `json:"parent_id"`
 	CreatedAt *uint64 `json:"created_at"`
 	UpdatedAt *uint64 `json:"updated_at"`
-}
+} */

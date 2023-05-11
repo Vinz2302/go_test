@@ -22,6 +22,7 @@ func main() {
 	routes.Car(router, *driver.CarHandler)
 	routes.Booking(router, *driver.BookingHandler)
 	routes.Driver(router, *driver.DriverHandler)
+	routes.User(router, *driver.UserHandler)
 	routes.Report(router, *driver.ReportHandler)
 
 	port := &conf.App.Port

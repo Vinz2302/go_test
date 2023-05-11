@@ -6,6 +6,9 @@ import (
 	customer "rest-api/modules/v1/utilities/customer/models"
 	driver "rest-api/modules/v1/utilities/drivers/models"
 
+	// role "rest-api/modules/v1/utilities/role/models"
+	// user "rest-api/modules/v1/utilities/user/models"
+
 	"fmt"
 
 	"gorm.io/gorm"
@@ -22,5 +25,7 @@ func Migrate(db *gorm.DB) {
 	db.AutoMigrate(&customer.Membership{})
 	db.AutoMigrate(&booking.Booktype{})
 	db.AutoMigrate(&driver.DriverIncentive{})
+	// db.AutoMigrate(&user.Users{})
+	// db.AutoMigrate(&role.Roles{})
 
 }

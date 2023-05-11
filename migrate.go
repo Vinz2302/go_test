@@ -14,4 +14,4 @@ func main3() {
 
 //migrate create -ext sql -dir app/databases/migrations/ -seq setName_mg
 //migrate -path app/databases/migrations/ -database "postgresql://postgres:neverdie@localhost:5432/go_test1?sslmode=disable" -verbose up
-//migrate -path app/databases/migrations/ -database "postgresql://postgres:neverdie@localhost:5432/go_test1?sslmode=disable" -force 2
+//migrate -path app/databases/migrations/ -database "postgresql://postgres:neverdie@localhost:5432/go_test1?sslmode=disable" force 2
