@@ -29,16 +29,40 @@ func (repo *repository) GetById(id int) (model.Users, error) {
 }
 
 /* func (repo *repository) GetUser(email string) (model.Users, error) {
+	var user model.Users
+	err := repo.db.First(&user, "email = ?", email).Error
 
+	return user, err
 } */
 
 func (repo *repository) Create(user model.Users) (model.Users, error) {
+
 	err := repo.db.Create(&user).Error
 
 	fmt.Println("repo", user)
 	return user, err
 }
 
-/* func (repo *repository) Login(user model.UserLogin) (model.Users, error) {
+func (repo *repository) Login(login model.UserLogin) (*model.Users, error) {
+	var user model.Users
 
-} */
+	tx := repo.db.Begin()
+
+	defer func() {
+		if repo := recover(); repo != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if err := tx.Error; err != nil {
+		return nil, err
+	}
+
+	if err := tx.First(&user, "email = ?", login.Email).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	return nil, tx.Commit().Error
+
+}
