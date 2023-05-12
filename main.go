@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 
+	middleware "rest-api/app/middlewares"
 	driver "rest-api/driver"
 	"rest-api/modules/v1/routes"
 
@@ -17,6 +18,8 @@ func main() {
 	}
 
 	router := gin.Default()
+
+	router.Use(middleware.CORSMiddleware())
 
 	routes.Customer(router, *driver.CustomerHandler)
 	routes.Car(router, *driver.CarHandler)

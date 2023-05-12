@@ -1,8 +1,9 @@
 CREATE TABLE users (
-	id int NOT NULL,
+	id bigserial NOT NULL,
 	"name" text NOT NULL,
 	email varchar(256) NOT NULL,
-	role_id int8 NULL,
+	password varchar(256) not null,
+	role_id int NULL,
 	CONSTRAINT users_email_key UNIQUE (email),
 	CONSTRAINT users_name_key UNIQUE (name),
 	CONSTRAINT users_pkey PRIMARY KEY (id)

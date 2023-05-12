@@ -9,6 +9,7 @@ import (
 type IUserService interface {
 	GetById(id int) (model.Users, error)
 	Create(userRequest model.UserRequest) (*model.Users, error)
+	Login(loginRequest model.UserLogin) (*model.Users, error)
 }
 
 type userService struct {
@@ -40,5 +41,23 @@ func (service *userService) Create(userRequest model.UserRequest) (*model.Users,
 
 	newUser, err := service.repository.Create(User)
 	return &newUser, err
+
+}
+
+func (service *userService) Login(loginRequest model.UserLogin) (*model.Users, error) {
+
+	Login := model.UserLogin{
+		Email:    loginRequest.Email,
+		Password: loginRequest.Password,
+	}
+
+	NewLogin, err := service.repository.Login(Login)
+	if NewLogin.Password != loginRequest.Password {
+		return nil, err
+	}
+
+	//jwt.GenerateToken(NewLogin.Email, NewLogin.Password, NewLogin.RoleId)
+
+	return NewLogin, err
 
 }

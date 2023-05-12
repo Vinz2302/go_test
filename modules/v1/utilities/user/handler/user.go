@@ -8,6 +8,7 @@ import (
 	service "rest-api/modules/v1/utilities/user/service"
 	res "rest-api/pkg/api-response"
 	helper "rest-api/pkg/helpers"
+	jwt "rest-api/pkg/jwt"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -72,9 +73,9 @@ func (h *UserHandler) Create(c *gin.Context) {
 }
 
 func (h *UserHandler) Login(c *gin.Context) {
-	var UserLogin model.UserLogin
+	var LoginRequest model.UserLogin
 
-	err := c.ShouldBindJSON(&UserLogin)
+	err := c.ShouldBindJSON(&LoginRequest)
 	if err != nil {
 		var ve validator.ValidationErrors
 		if errors.As(err, &ve) {
@@ -86,7 +87,21 @@ func (h *UserHandler) Login(c *gin.Context) {
 		return
 	}
 
-	//var user model.Users
+	LoginResult, err := h.userService.Login(LoginRequest)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, res.ServerError(err.Error()))
+	}
+
+	token, err := jwt.GenerateToken(LoginResult.Email, LoginResult.RoleId)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, res.ServerError(err.Error()))
+	}
+
+	fmt.Println("token", token)
+	c.SetCookie("Authorization", token, 3600*24*1, "", "", false, true)
+
+	LoginResponse := responseUser(*LoginResult)
+	c.JSON(http.StatusOK, res.Success(LoginResponse))
 
 }
 

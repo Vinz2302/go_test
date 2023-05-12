@@ -72,3 +72,7 @@ func TotalDriverCost(days uint, dailyCostDriver uint) uint {
 	totalDriverCostTemp := (days * dailyCostDriver)
 	return totalDriverCostTemp
 }
+
+func CompareString(str1, str2 string) bool {
+	return str1 == str2
+}

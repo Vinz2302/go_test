@@ -10,6 +10,7 @@ import (
 type IUserRepository interface {
 	GetById(id int) (model.Users, error)
 	Create(user model.Users) (model.Users, error)
+	Login(loginRequest model.UserLogin) (*model.Users, error)
 }
 
 type repository struct {
@@ -43,7 +44,7 @@ func (repo *repository) Create(user model.Users) (model.Users, error) {
 	return user, err
 }
 
-func (repo *repository) Login(login model.UserLogin) (*model.Users, error) {
+func (repo *repository) Login(loginRequest model.UserLogin) (*model.Users, error) {
 	var user model.Users
 
 	tx := repo.db.Begin()
@@ -58,11 +59,15 @@ func (repo *repository) Login(login model.UserLogin) (*model.Users, error) {
 		return nil, err
 	}
 
-	if err := tx.First(&user, "email = ?", login.Email).Error; err != nil {
+	if err := tx.First(&user, "email = ?", loginRequest.Email).Error; err != nil {
 		tx.Rollback()
 		return nil, err
 	}
 
-	return nil, tx.Commit().Error
+	return &user, tx.Commit().Error
 
 }
+
+/* func CompareString(str1, str2 string) bool {
+	return str1 == str2
+} */

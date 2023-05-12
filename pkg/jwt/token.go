@@ -31,7 +31,32 @@ func ValidateToken(encodedToken string, secretKey string) (*jwt.Token, error) {
 	return token, nil
 }
 
-func GenerateToken(uuID string, email string, tokenName string, roleId *int) (string, error) {
+func GenerateToken(email string, roleId uint) (string, error) {
+
+	claim := jwt.MapClaims{}
+	claim["email"] = email
+	claim["roleId"] = roleId
+	claim["exp"] = time.Now().Add(time.Hour * time.Duration(1)).Unix()
+
+	// if tokenName == "at" {
+	// 	claim["token_name"] = "access_token"
+	// 	claim["exp"] = time.Now().Add(time.Hour * time.Duration(1)).Unix()
+	// } else {
+	// 	claim["token_name"] = "refresh_token"
+	// }
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claim)
+	secret_key := []byte(conf.App.Secret_key)
+
+	signedToken, err := token.SignedString(secret_key)
+	if err != nil {
+		return signedToken, err
+	}
+
+	return signedToken, nil
+}
+
+/* func GenerateToken(uuID string, email string, tokenName string, roleId *int) (string, error) {
 
 	claim := jwt.MapClaims{}
 	claim["uuid"] = uuID
@@ -53,7 +78,7 @@ func GenerateToken(uuID string, email string, tokenName string, roleId *int) (st
 		return signedToken, err
 	}
 	return signedToken, nil
-}
+} */
 
 func ExtractTokenUUID(token *jwt.Token) (string, error) {
 	claims, _ := token.Claims.(jwt.MapClaims)

@@ -5,8 +5,9 @@ import (
 	"log"
 	"net/http"
 	"rest-api/app/config"
+	"strconv"
 
-	//driver "rest-api/driver"
+	driver "rest-api/driver"
 	res "rest-api/pkg/api-response"
 	jwt "rest-api/pkg/jwt"
 	"strings"
@@ -37,7 +38,7 @@ func AuthJwt() gin.HandlerFunc {
 			return
 		}
 
-		uuid, errExtract := jwt.ExtractTokenUUID(validate_token)
+		roleId, errExtract := jwt.ExtractTokenRoleID(validate_token)
 		if errExtract != nil {
 			errorMessage := fmt.Sprintf("%v", err)
 			c.JSON(http.StatusUnauthorized, res.UnAuthorized(errorMessage))
@@ -45,17 +46,17 @@ func AuthJwt() gin.HandlerFunc {
 			return
 		}
 
-		log.Println("auth time", startTime)
-		c.Set("uuid", uuid)
+		log.Println("auth time = ", startTime)
+		c.Set("role_id", roleId)
 		c.Set("token", token)
-		c.Set(valName, validate_token)
 		c.Next()
 	}
 }
 
-/* func AuthUser() gin.HandlerFunc {
+func AuthUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		authUser := c.Request.Header.Get("Auth-User-Id")
+		authUser := c.Request.Header.Get("Authorization")
+		fmt.Println("auth test = ", authUser)
 		userRepository := driver.UserRepository
 		intAuthUser, err := strconv.Atoi(authUser)
 		if err != nil {
@@ -64,23 +65,23 @@ func AuthJwt() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		_, err, userLogin := userRepository.GetUserByAuthServerId(intAuthUser)
+		userLogin, err := userRepository.GetById(intAuthUser)
 		if err != nil {
 			errorMessage := fmt.Sprintf("%v", err)
 			c.JSON(http.StatusUnauthorized, res.UnAuthorized(errorMessage))
 			c.Abort()
 			return
 		}
-		c.Set("user", *userLogin)
-		c.Set("user_id", *userLogin.ID)
-		c.Set("user_name", *userLogin.Name)
-		c.Set("user_nip", *userLogin.Nip)
-		c.Set("user_role_id", *userLogin.RoleId)
+		c.Set("user", userLogin)
+		//c.Set("user_id", userLogin)
+		//c.Set("user_name", *userLogin.Name)
+		//c.Set("user_nip", *userLogin.Nip)
+		//c.Set("user_role_id", *userLogin.RoleId)
 		c.Next()
 	}
-} */
+}
 
-/* func CORSMiddleware() gin.HandlerFunc {
+func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
@@ -95,4 +96,4 @@ func AuthJwt() gin.HandlerFunc {
 
 		c.Next()
 	}
-} */
+}
