@@ -10,6 +10,8 @@ import (
 	driver "rest-api/driver"
 	res "rest-api/pkg/api-response"
 	jwt "rest-api/pkg/jwt"
+
+	//"github.com/dgrijalva/jwt-go"
 	"strings"
 	"time"
 
@@ -29,6 +31,8 @@ func AuthJwt() gin.HandlerFunc {
 		startTime := time.Now()
 		authHeader := c.Request.Header.Get(authorizationHeader)
 		token := strings.Replace(authHeader, "Bearer ", "", 1)
+		fmt.Println("auth = ", authHeader)
+		fmt.Println("token", token)
 
 		validate_token, err := jwt.ValidateToken(token, env.App.Secret_key)
 		if err != nil {
@@ -49,16 +53,22 @@ func AuthJwt() gin.HandlerFunc {
 		log.Println("auth time = ", startTime)
 		c.Set("role_id", roleId)
 		c.Set("token", token)
+		//c.Set(valName, validate_token)
 		c.Next()
 	}
 }
 
 func AuthUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		authUser := c.Request.Header.Get("Authorization")
-		fmt.Println("auth test = ", authUser)
+		authHeader := c.Request.Header.Get("Authorization")
+		fmt.Println("auth test = ", authHeader)
+
+		//token := extractTokenFromHeader(authHeader)
+
+		//fmt.Println("token =", token)
+
 		userRepository := driver.UserRepository
-		intAuthUser, err := strconv.Atoi(authUser)
+		intAuthUser, err := strconv.Atoi(authHeader)
 		if err != nil {
 			errorMessage := fmt.Sprintf("%v", err)
 			c.JSON(http.StatusUnauthorized, res.UnAuthorized(errorMessage))
@@ -80,6 +90,14 @@ func AuthUser() gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+/* func extractTokenFromHeader(authHeader string) string {
+	parts := strings.Split(authHeader, " ")
+	if len(parts) == 2 {
+		return parts[1]
+	}
+	return ""
+} */
 
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {

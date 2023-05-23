@@ -31,11 +31,11 @@ func ValidateToken(encodedToken string, secretKey string) (*jwt.Token, error) {
 	return token, nil
 }
 
-func GenerateToken(email string, roleId uint) (string, error) {
+func GenerateToken(roleId uint) (string, error) {
 
 	claim := jwt.MapClaims{}
-	claim["email"] = email
-	claim["roleId"] = roleId
+	//claim["email"] = email
+	claim["role_id"] = roleId
 	claim["exp"] = time.Now().Add(time.Hour * time.Duration(1)).Unix()
 
 	// if tokenName == "at" {

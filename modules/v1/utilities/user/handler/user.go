@@ -92,13 +92,14 @@ func (h *UserHandler) Login(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, res.ServerError(err.Error()))
 	}
 
-	token, err := jwt.GenerateToken(LoginResult.Email, LoginResult.RoleId)
+	token, err := jwt.GenerateToken(LoginResult.RoleId)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, res.ServerError(err.Error()))
 	}
 
 	fmt.Println("token", token)
 	c.SetCookie("Authorization", token, 3600*24*1, "", "", false, true)
+	//c.Header("Authorization", "Bearer "+token)
 
 	LoginResponse := responseUser(*LoginResult)
 	c.JSON(http.StatusOK, res.Success(LoginResponse))
