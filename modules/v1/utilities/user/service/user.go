@@ -4,6 +4,7 @@ import (
 	"fmt"
 	model "rest-api/modules/v1/utilities/user/models"
 	repo "rest-api/modules/v1/utilities/user/repository"
+	helper "rest-api/pkg/helpers"
 )
 
 type IUserService interface {
@@ -28,6 +29,7 @@ func (service *userService) GetById(id int) (model.Users, error) {
 
 func (service *userService) Create(userRequest model.UserRequest) (*model.Users, error) {
 
+	userRequest.Password, _ = helper.Hash(userRequest.Password)
 	fmt.Println("serv", userRequest)
 
 	User := model.Users{
@@ -52,9 +54,12 @@ func (service *userService) Login(loginRequest model.UserLogin) (*model.Users, e
 	}
 
 	NewLogin, err := service.repository.Login(Login)
-	if NewLogin.Password != loginRequest.Password {
+
+	/* compareErr := helper.CompareHash([]byte(NewLogin.Password), []byte(loginRequest.Password))
+	if compareErr != nil {
+		fmt.Println("Invalid credentials")
 		return nil, err
-	}
+	} */
 
 	//jwt.GenerateToken(NewLogin.Email, NewLogin.Password, NewLogin.RoleId)
 

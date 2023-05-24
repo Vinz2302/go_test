@@ -92,6 +92,7 @@ func ExtractTokenRoleID(token *jwt.Token) (*int, error) {
 	claims, _ := token.Claims.(jwt.MapClaims)
 	role_id := fmt.Sprintf("%v", claims["role_id"])
 	roleID, _ := strconv.Atoi(role_id)
+	fmt.Println("roleid = ", roleID)
 
 	return &roleID, nil
 }

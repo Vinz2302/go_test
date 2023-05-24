@@ -92,6 +92,12 @@ func (h *UserHandler) Login(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, res.ServerError(err.Error()))
 	}
 
+	errCompare := helper.CompareHash([]byte(LoginResult.Password), []byte(LoginRequest.Password))
+	if errCompare != nil {
+		c.JSON(http.StatusBadRequest, res.BadRequest("Invalid credentials"))
+		return
+	}
+
 	token, err := jwt.GenerateToken(LoginResult.RoleId)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, res.ServerError(err.Error()))
@@ -99,7 +105,6 @@ func (h *UserHandler) Login(c *gin.Context) {
 
 	fmt.Println("token", token)
 	c.SetCookie("Authorization", token, 3600*24*1, "", "", false, true)
-	//c.Header("Authorization", "Bearer "+token)
 
 	LoginResponse := responseUser(*LoginResult)
 	c.JSON(http.StatusOK, res.Success(LoginResponse))

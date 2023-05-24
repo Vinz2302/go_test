@@ -6,6 +6,8 @@ import (
 	"rest-api/app/config"
 	helperDatabases "rest-api/pkg/helpers/databases"
 	"time"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 var (
@@ -71,6 +73,19 @@ func Discount(totalCost float32, discountValue float32) float32 {
 func TotalDriverCost(days uint, dailyCostDriver uint) uint {
 	totalDriverCostTemp := (days * dailyCostDriver)
 	return totalDriverCostTemp
+}
+
+func Hash(password string) (string, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+	return string(hash), nil
+}
+
+func CompareHash(hashedPassword, requestPassword []byte) error {
+	err := bcrypt.CompareHashAndPassword(hashedPassword, requestPassword)
+	return err
 }
 
 func CompareString(str1, str2 string) bool {

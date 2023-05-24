@@ -33,3 +33,5 @@ func main() {
 	router.Run(":" + *port)
 
 }
+
+//compiledaemon --command="./rest-api"

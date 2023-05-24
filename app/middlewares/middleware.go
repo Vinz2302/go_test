@@ -53,7 +53,6 @@ func AuthJwt() gin.HandlerFunc {
 		log.Println("auth time = ", startTime)
 		c.Set("role_id", roleId)
 		c.Set("token", token)
-		//c.Set(valName, validate_token)
 		c.Next()
 	}
 }
