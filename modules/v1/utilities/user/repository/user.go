@@ -2,6 +2,7 @@ package repository
 
 import (
 	"fmt"
+	role "rest-api/modules/v1/utilities/role/models"
 	model "rest-api/modules/v1/utilities/user/models"
 
 	"gorm.io/gorm"
@@ -27,6 +28,13 @@ func (repo *repository) GetById(id int) (model.Users, error) {
 	err := repo.db.Find(&user, id).Error
 
 	return user, err
+}
+
+func (repo *repository) FindRoles(id int) (string, error) {
+	var roleName role.Roles
+	err := repo.db.Find(&roleName, id).Error
+
+	return *roleName.Name, err
 }
 
 /* func (repo *repository) GetUser(email string) (model.Users, error) {

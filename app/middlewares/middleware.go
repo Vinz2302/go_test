@@ -57,6 +57,33 @@ func AuthJwt() gin.HandlerFunc {
 	}
 }
 
+func RoleAuth(role int) gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		roleId, exists := c.Get("role_id")
+		if !exists {
+			c.JSON(http.StatusUnauthorized, res.UnAuthorized("Role id not found"))
+			c.Abort()
+			return
+		}
+
+		storedRoleId, ok := roleId.(*int)
+		if !ok {
+			c.JSON(http.StatusUnauthorized, res.UnAuthorized("Invalid role id format"))
+			c.Abort()
+			return
+		}
+
+		if *storedRoleId != role {
+			c.JSON(http.StatusUnauthorized, res.UnAuthorized("Insufficient privileges"))
+			c.Abort()
+			return
+		}
+
+		c.Next()
+	}
+}
+
 func AuthUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.Request.Header.Get("Authorization")
