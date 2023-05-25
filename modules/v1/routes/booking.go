@@ -23,7 +23,7 @@ func Booking(router *gin.Engine, bookingHandler booking.BookingHandler) {
 	v1.GET("", auth, bookingHandler.Index)
 	v1.GET("/:id", auth, role_admin, bookingHandler.FindByID)
 	v1.POST("", auth, role_admin, bookingHandler.Create)
-	v1.PUT("/:id", auth, role_superadmin, bookingHandler.Update)
-	v1.DELETE("/:id", auth, role_admin, bookingHandler.Delete)
+	v1.PUT("/:id", auth, role_admin, bookingHandler.Update)
+	v1.DELETE("/:id", auth, role_superadmin, bookingHandler.Delete)
 	v1.PUT("/:id/finish", auth, role_admin, bookingHandler.Finish)
 }
