@@ -11,7 +11,7 @@ import (
 type IUserRepository interface {
 	GetById(id int) (model.Users, error)
 	Create(user model.Users) (model.Users, error)
-	Login(loginRequest model.UserLogin) (*model.Users, error)
+	Login(loginRequest model.UserLogin, refresh_token string) (*model.Users, error)
 }
 
 type repository struct {
@@ -52,8 +52,10 @@ func (repo *repository) Create(user model.Users) (model.Users, error) {
 	return user, err
 }
 
-func (repo *repository) Login(loginRequest model.UserLogin) (*model.Users, error) {
+func (repo *repository) Login(loginRequest model.UserLogin, refresh_token string) (*model.Users, error) {
 	var user model.Users
+
+	user.Refresh_token = refresh_token
 
 	tx := repo.db.Begin()
 
@@ -68,6 +70,11 @@ func (repo *repository) Login(loginRequest model.UserLogin) (*model.Users, error
 	}
 
 	if err := tx.First(&user, "email = ?", loginRequest.Email).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	if err := tx.Model(&user).Where("id = ?", user.ID).Update("refresh_token", refresh_token).Error; err != nil {
 		tx.Rollback()
 		return nil, err
 	}

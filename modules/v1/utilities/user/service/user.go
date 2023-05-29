@@ -10,7 +10,7 @@ import (
 type IUserService interface {
 	GetById(id int) (model.Users, error)
 	Create(userRequest model.UserRequest) (*model.Users, error)
-	Login(loginRequest model.UserLogin) (*model.Users, error)
+	Login(loginRequest model.UserLogin, refresh_token string) (*model.Users, error)
 }
 
 type userService struct {
@@ -46,14 +46,14 @@ func (service *userService) Create(userRequest model.UserRequest) (*model.Users,
 
 }
 
-func (service *userService) Login(loginRequest model.UserLogin) (*model.Users, error) {
+func (service *userService) Login(loginRequest model.UserLogin, refresh_token string) (*model.Users, error) {
 
 	Login := model.UserLogin{
 		Email:    loginRequest.Email,
 		Password: loginRequest.Password,
 	}
 
-	NewLogin, err := service.repository.Login(Login)
+	NewLogin, err := service.repository.Login(Login, refresh_token)
 
 	/* compareErr := helper.CompareHash([]byte(NewLogin.Password), []byte(loginRequest.Password))
 	if compareErr != nil {

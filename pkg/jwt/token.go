@@ -40,6 +40,23 @@ func ValidateToken(encodedToken string, secretKey string) (*jwt.Token, error) {
 	})
 } */
 
+func RefreshToken() (string, error) {
+
+	claim := jwt.MapClaims{}
+	claim["exp"] = time.Now().Add(time.Hour * 24 * 30).Unix()
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claim)
+	secret_key := []byte(conf.App.Secret_key)
+
+	signedToken, err := token.SignedString(secret_key)
+	if err != nil {
+		return signedToken, err
+	}
+
+	return signedToken, nil
+
+}
+
 func GenerateToken(roleId uint) (string, error) {
 
 	claim := jwt.MapClaims{}

@@ -26,11 +26,12 @@ import (
 } */
 
 type Users struct {
-	ID       uint   `gorm:"primaryKey"`
-	Name     string `gorm:"unique; not null"`
-	Email    string `gorm:"unique; type:varchar(256); not null"`
-	Password string `gorm:"type:varchar(256); not null"`
-	RoleId   uint
+	ID            uint   `gorm:"primaryKey"`
+	Name          string `gorm:"unique; not null"`
+	Email         string `gorm:"unique; type:varchar(256); not null"`
+	Password      string `gorm:"type:varchar(256); not null"`
+	RoleId        uint
+	Refresh_token string
 	// CreatedAt time.Time `gorm:"DEFAULT:current_timestamp"`
 	// UpdateAt  time.Time
 	// DeletedAt gorm.DeletedAt

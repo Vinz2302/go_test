@@ -75,6 +75,13 @@ func (h *UserHandler) Create(c *gin.Context) {
 func (h *UserHandler) Login(c *gin.Context) {
 	var LoginRequest model.UserLogin
 
+	refresh_token, errToken := jwt.RefreshToken()
+	if errToken != nil {
+		c.JSON(http.StatusBadRequest, res.BadRequest("bad request"))
+	}
+
+	fmt.Println("refresh token = ", refresh_token)
+
 	err := c.ShouldBindJSON(&LoginRequest)
 	if err != nil {
 		var ve validator.ValidationErrors
@@ -87,7 +94,7 @@ func (h *UserHandler) Login(c *gin.Context) {
 		return
 	}
 
-	LoginResult, err := h.userService.Login(LoginRequest)
+	LoginResult, err := h.userService.Login(LoginRequest, refresh_token)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, res.ServerError(err.Error()))
 	}
@@ -111,15 +118,17 @@ func (h *UserHandler) Login(c *gin.Context) {
 
 }
 
-func (h *UserHandler) RefreshToken(c *gin.Context) error {
-	type tokenReqBody struct {
-		RefreshToken string `json:"refresh_token"`
+/* func (h *UserHandler) RefreshAccessToken(c *gin.Context) error {
+
+	cookie, err := c.Cookie("refresh_token")
+	if err != nil {
+		c.JSON(http.StatusForbidden, res.StatusForbidden("failed"))
 	}
-	tokenReq := tokenReqBody{}
-	c.Bind(&tokenReq)
-	
-	token, err := 
-}
+
+	config, _ := config.LoadConfig
+
+	token, err :=
+} */
 
 func responseUser(b model.Users) model.UserResponse {
 
