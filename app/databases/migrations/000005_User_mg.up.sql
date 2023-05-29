@@ -4,6 +4,7 @@ CREATE TABLE users (
 	email varchar(256) NOT NULL,
 	password varchar(256) not null,
 	role_id int NULL,
+	refresh_token varchar(256),
 	CONSTRAINT users_email_key UNIQUE (email),
 	CONSTRAINT users_name_key UNIQUE (name),
 	CONSTRAINT users_pkey PRIMARY KEY (id)

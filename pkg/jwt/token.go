@@ -31,10 +31,18 @@ func ValidateToken(encodedToken string, secretKey string) (*jwt.Token, error) {
 	return token, nil
 }
 
+/* func Refresh(refreshToken string) (*jwt.Token, error) {
+	token, err := jwt.Parse(refreshToken, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte("secret"), nil
+	})
+} */
+
 func GenerateToken(roleId uint) (string, error) {
 
 	claim := jwt.MapClaims{}
-	//claim["email"] = email
 	claim["role_id"] = roleId
 	claim["exp"] = time.Now().Add(time.Hour * time.Duration(1)).Unix()
 

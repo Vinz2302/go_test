@@ -111,6 +111,16 @@ func (h *UserHandler) Login(c *gin.Context) {
 
 }
 
+func (h *UserHandler) RefreshToken(c *gin.Context) error {
+	type tokenReqBody struct {
+		RefreshToken string `json:"refresh_token"`
+	}
+	tokenReq := tokenReqBody{}
+	c.Bind(&tokenReq)
+	
+	token, err := 
+}
+
 func responseUser(b model.Users) model.UserResponse {
 
 	userResponse := model.UserResponse{

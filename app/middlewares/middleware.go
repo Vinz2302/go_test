@@ -5,9 +5,8 @@ import (
 	"log"
 	"net/http"
 	"rest-api/app/config"
-	"strconv"
 
-	driver "rest-api/driver"
+	//driver "rest-api/driver"
 	res "rest-api/pkg/api-response"
 	jwt "rest-api/pkg/jwt"
 
@@ -52,7 +51,7 @@ func AuthJwt() gin.HandlerFunc {
 
 		log.Println("auth time = ", startTime)
 		c.Set("role_id", roleId)
-		c.Set("token", token)
+		//c.Set("token", token)
 		c.Next()
 	}
 }
@@ -84,14 +83,14 @@ func RoleAuth(role int) gin.HandlerFunc {
 	}
 }
 
-func AuthUser() gin.HandlerFunc {
+/* func AuthUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.Request.Header.Get("Authorization")
 		fmt.Println("auth test = ", authHeader)
 
-		//token := extractTokenFromHeader(authHeader)
+		token := extractTokenFromHeader(authHeader)
 
-		//fmt.Println("token =", token)
+		fmt.Println("token =", token)
 
 		userRepository := driver.UserRepository
 		intAuthUser, err := strconv.Atoi(authHeader)
@@ -109,20 +108,12 @@ func AuthUser() gin.HandlerFunc {
 			return
 		}
 		c.Set("user", userLogin)
-		//c.Set("user_id", userLogin)
-		//c.Set("user_name", *userLogin.Name)
-		//c.Set("user_nip", *userLogin.Nip)
-		//c.Set("user_role_id", *userLogin.RoleId)
+		c.Set("user_id", userLogin)
+		c.Set("user_name", *userLogin.Name)
+		c.Set("user_nip", *userLogin.Nip)
+		c.Set("user_role_id", *userLogin.RoleId)
 		c.Next()
 	}
-}
-
-/* func extractTokenFromHeader(authHeader string) string {
-	parts := strings.Split(authHeader, " ")
-	if len(parts) == 2 {
-		return parts[1]
-	}
-	return ""
 } */
 
 func CORSMiddleware() gin.HandlerFunc {
