@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	model "rest-api/modules/v1/utilities/user/models"
 	repo "rest-api/modules/v1/utilities/user/repository"
@@ -11,6 +12,7 @@ type IUserService interface {
 	GetById(id int) (model.Users, error)
 	Create(userRequest model.UserRequest) (*model.Users, error)
 	Login(loginRequest model.UserLogin, refresh_token string) (*model.Users, error)
+	Refresh(email string, cookie string) (*model.Users, error, int)
 }
 
 type userService struct {
@@ -55,14 +57,20 @@ func (service *userService) Login(loginRequest model.UserLogin, refresh_token st
 
 	NewLogin, err := service.repository.Login(Login, refresh_token)
 
-	/* compareErr := helper.CompareHash([]byte(NewLogin.Password), []byte(loginRequest.Password))
-	if compareErr != nil {
-		fmt.Println("Invalid credentials")
-		return nil, err
-	} */
-
-	//jwt.GenerateToken(NewLogin.Email, NewLogin.Password, NewLogin.RoleId)
-
 	return NewLogin, err
 
+}
+
+func (service *userService) Refresh(email string, cookie string) (*model.Users, error, int) {
+
+	NewRefresh, errRefresh := service.repository.Refresh(email, cookie)
+	if errRefresh != nil {
+		return nil, errRefresh, 500
+	}
+
+	if NewRefresh.Refresh_token != cookie {
+		return nil, errors.New("Invalid Refresh Token"), 400
+	}
+
+	return NewRefresh, nil, 200
 }

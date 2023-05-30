@@ -9,6 +9,10 @@ type UserResponse struct {
 	// UpdatedAt *time.Time `json:"updated_at"`
 }
 
+type RefreshResponse struct {
+	Access_token string `json:"access_token"`
+}
+
 /* type UserResponseEpochDTO struct {
 	ID           *uint   `json:"user_id"`
 	Name         *string `json:"name"`

@@ -13,6 +13,7 @@ func User(router *gin.Engine, userHandler user.UserHandler) {
 	v1.GET("/:id", userHandler.GetById)
 	v1.POST("", userHandler.Create)
 	v1.POST("/login", userHandler.Login)
-	//v1.GET("/refresh", userHandler.Ref)
+	v1.GET("/refresh", userHandler.RefreshAccessToken)
+	v1.GET("/logout", userHandler.LogoutUser)
 
 }

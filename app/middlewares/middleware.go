@@ -83,6 +83,35 @@ func RoleAuth(role int) gin.HandlerFunc {
 	}
 }
 
+/* func DeserializeUser() gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		var access_token string
+
+		cookie, err := c.Cookie("access_token")
+
+		authorizationHeader := c.Request.Header.Get("Authorization")
+		fields := strings.Fields(authorizationHeader)
+
+		if len(fields) != 0 && fields[0] == "Bearer" {
+			access_token = fields[1]
+		} else if err == nil {
+			access_token = cookie
+		}
+
+		if access_token == "" {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, res.UnAuthorized("You're not logged in"))
+		}
+
+		sub, err := jwt.ValidateToken(access_token, env.App.Secret_key)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, res.UnAuthorized(err.Error()))
+		}
+
+		userRepository := driver.UserRepository
+	}
+} */
+
 /* func AuthUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.Request.Header.Get("Authorization")

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	config "rest-api/app/config"
 	model "rest-api/modules/v1/utilities/user/models"
 	service "rest-api/modules/v1/utilities/user/service"
 	res "rest-api/pkg/api-response"
@@ -13,6 +14,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+)
+
+var (
+	conf, _ = config.Init()
 )
 
 type UserHandler struct {
@@ -75,13 +80,6 @@ func (h *UserHandler) Create(c *gin.Context) {
 func (h *UserHandler) Login(c *gin.Context) {
 	var LoginRequest model.UserLogin
 
-	refresh_token, errToken := jwt.RefreshToken()
-	if errToken != nil {
-		c.JSON(http.StatusBadRequest, res.BadRequest("bad request"))
-	}
-
-	fmt.Println("refresh token = ", refresh_token)
-
 	err := c.ShouldBindJSON(&LoginRequest)
 	if err != nil {
 		var ve validator.ValidationErrors
@@ -94,9 +92,19 @@ func (h *UserHandler) Login(c *gin.Context) {
 		return
 	}
 
+	fmt.Println("email1 = ", LoginRequest.Email)
+	refresh_token, errToken := jwt.RefreshToken(LoginRequest.Email)
+	if errToken != nil {
+		c.JSON(http.StatusBadRequest, res.BadRequest("bad request"))
+		return
+	}
+
+	fmt.Println("refresh token = ", refresh_token)
+
 	LoginResult, err := h.userService.Login(LoginRequest, refresh_token)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, res.ServerError(err.Error()))
+		return
 	}
 
 	errCompare := helper.CompareHash([]byte(LoginResult.Password), []byte(LoginRequest.Password))
@@ -108,27 +116,69 @@ func (h *UserHandler) Login(c *gin.Context) {
 	token, err := jwt.GenerateToken(LoginResult.RoleId)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, res.ServerError(err.Error()))
+		return
 	}
 
 	fmt.Println("token", token)
 	c.SetCookie("Authorization", token, 3600*24*1, "", "", false, true)
+	c.SetCookie("refresh_token", refresh_token, 3600*24*30, "", "", false, true)
 
 	LoginResponse := responseUser(*LoginResult)
 	c.JSON(http.StatusOK, res.Success(LoginResponse))
 
 }
 
-/* func (h *UserHandler) RefreshAccessToken(c *gin.Context) error {
+func (h *UserHandler) LogoutUser(c *gin.Context) {
+	c.SetCookie("Authorization", "", -1, "/", "", false, true)
+	c.SetCookie("refresh_token", "", -1, "/", "", false, true)
 
-	cookie, err := c.Cookie("refresh_token")
-	if err != nil {
-		c.JSON(http.StatusForbidden, res.StatusForbidden("failed"))
+	c.JSON(http.StatusOK, res.StatusOK("success"))
+}
+
+func (h *UserHandler) RefreshAccessToken(c *gin.Context) {
+
+	cookie, errCookie := c.Cookie("refresh_token")
+	if errCookie != nil {
+		c.JSON(http.StatusBadRequest, res.BadRequest("Token not found"))
+		return
 	}
 
-	config, _ := config.LoadConfig
+	validate_token, err := jwt.ValidateToken(cookie, conf.App.Secret_key)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, res.UnAuthorized(err.Error()))
+		return
+	}
 
-	token, err :=
-} */
+	email, err := jwt.ExtractTokenEmail(validate_token)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, res.BadRequest("Invalid email"))
+		return
+	}
+
+	RefreshResult, err, statusCode := h.userService.Refresh(email, cookie)
+	if err != nil {
+		if statusCode == 404 {
+			c.JSON(http.StatusNotFound, res.NotFound(err.Error()))
+			return
+		}
+		if statusCode == 400 {
+			c.JSON(http.StatusBadRequest, res.BadRequest(err.Error()))
+			return
+		}
+		c.JSON(http.StatusInternalServerError, res.ServerError(err.Error()))
+		return
+	}
+
+	token, err := jwt.GenerateToken(RefreshResult.RoleId)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, res.ServerError(err.Error()))
+		return
+	}
+
+	//RefreshResponse := responseRefresh(token)
+
+	c.JSON(http.StatusOK, res.Success(token))
+}
 
 func responseUser(b model.Users) model.UserResponse {
 
@@ -140,3 +190,11 @@ func responseUser(b model.Users) model.UserResponse {
 	}
 	return userResponse
 }
+
+/* func responseRefresh(b model.RefreshResponse) model.RefreshResponse {
+
+	refreshResponse := model.RefreshResponse{
+		Access_token: b.Access_token,
+	}
+	return refreshResponse
+} */

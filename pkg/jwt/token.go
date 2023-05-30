@@ -40,9 +40,12 @@ func ValidateToken(encodedToken string, secretKey string) (*jwt.Token, error) {
 	})
 } */
 
-func RefreshToken() (string, error) {
+func RefreshToken(email string) (string, error) {
+
+	fmt.Println("email2 = ", email)
 
 	claim := jwt.MapClaims{}
+	claim["email"] = email
 	claim["exp"] = time.Now().Add(time.Hour * 24 * 30).Unix()
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claim)
@@ -120,4 +123,14 @@ func ExtractTokenRoleID(token *jwt.Token) (*int, error) {
 	fmt.Println("roleid = ", roleID)
 
 	return &roleID, nil
+}
+
+func ExtractTokenEmail(token *jwt.Token) (string, error) {
+
+	claims, _ := token.Claims.(jwt.MapClaims)
+	email_token := fmt.Sprintf("%v", claims["email"])
+	//email, _ := strconv.Atoi(email_token)
+	//fmt.Println("email = ",  email)
+
+	return email_token, nil
 }

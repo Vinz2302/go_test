@@ -12,6 +12,7 @@ type IUserRepository interface {
 	GetById(id int) (model.Users, error)
 	Create(user model.Users) (model.Users, error)
 	Login(loginRequest model.UserLogin, refresh_token string) (*model.Users, error)
+	Refresh(email string, cookie string) (*model.Users, error)
 }
 
 type repository struct {
@@ -24,7 +25,7 @@ func NewUserRepository(db *gorm.DB) *repository {
 
 func (repo *repository) GetById(id int) (model.Users, error) {
 	var user model.Users
-	fmt.Println("repo", id)
+
 	err := repo.db.Find(&user, id).Error
 
 	return user, err
@@ -55,7 +56,7 @@ func (repo *repository) Create(user model.Users) (model.Users, error) {
 func (repo *repository) Login(loginRequest model.UserLogin, refresh_token string) (*model.Users, error) {
 	var user model.Users
 
-	user.Refresh_token = refresh_token
+	//user.Refresh_token = refresh_token
 
 	tx := repo.db.Begin()
 
@@ -81,6 +82,29 @@ func (repo *repository) Login(loginRequest model.UserLogin, refresh_token string
 
 	return &user, tx.Commit().Error
 
+}
+
+func (repo *repository) Refresh(email string, cookie string) (*model.Users, error) {
+	var user model.Users
+
+	tx := repo.db.Begin()
+
+	defer func() {
+		if repo := recover(); repo != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if err := tx.Error; err != nil {
+		return nil, err
+	}
+
+	if err := tx.First(&user, "email = ?", email).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	return &user, tx.Commit().Error
 }
 
 /* func CompareString(str1, str2 string) bool {
