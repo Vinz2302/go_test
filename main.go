@@ -17,6 +17,8 @@ func main() {
 		log.Fatal(driver.ErrConf)
 	}
 
+	//firebase.FirebaseCredentialInit(&conf)
+
 	router := gin.Default()
 
 	router.Use(middleware.CORSMiddleware())
