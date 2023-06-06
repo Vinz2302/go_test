@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 
+	"rest-api/app/firebase"
 	middleware "rest-api/app/middlewares"
 	driver "rest-api/driver"
 	"rest-api/modules/v1/routes"
@@ -17,7 +18,12 @@ func main() {
 		log.Fatal(driver.ErrConf)
 	}
 
-	//firebase.FirebaseCredentialInit(&conf)
+	firebase.FirebaseCredentialInit(&conf)
+
+	//app := firebase.FirebaseInit()
+	//firestoreClient := firebase.CloudFirestore()
+	//authClient := firebase.AuthClient()
+	//storageClient := firebase.StorageClient()
 
 	router := gin.Default()
 
